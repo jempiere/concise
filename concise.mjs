@@ -225,9 +225,9 @@ const once = (b, ctx) => {
 }
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 
-const req = async (pat, props, scope) => {
+const req = async (pat, scope, ...props) => {
 	Object.entries(await import(pat)).forEach(([name, exp]) => { //uses this file as it's root1
-		if(props) scope[name] = exp
+		if(props.length = 0) scope[name] = exp;
 		else for(let i of props) if(i == name) scope[name] = exp;
 	})
 }
