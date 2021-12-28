@@ -383,6 +383,4 @@ export {
 	dom,
 	linkDevice,
 	fetchHTML,
-	__filename,
-	__dirname,
 }
