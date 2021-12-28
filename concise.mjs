@@ -1,7 +1,7 @@
 /*SNIPPET LIBRARY*/
 import {fileURLToPath} from 'url'
-const __filename = () => fileURLToPath(import.meta.url);
-const __dirname  = () => __filename.substring(0,__filename.lastIndexOf('/')+1);
+const __cdf = () => fileURLToPath(import.meta.url);
+const __cdn  = () => __cdf().substring(0,__cdf().lastIndexOf('/')+1);
 /*Array Methods*/
 
 const randex = (arr) => arr[~~(Math.random()*arr.length)];
@@ -228,7 +228,7 @@ const once = (b, ctx) => {
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 
 const req = async (fn, props=[], scope=global) => {
-	Object.entries(await import(__dirname()+fn)).forEach(([name, exp]) => { //uses this file as it's root1
+	Object.entries(await import(__cdn()+fn)).forEach(([name, exp]) => { //uses this file as it's root1
 		if(props.length == 0) scope[name] = exp;
 		else for(let i of props) if(i == name) scope[''+name] = exp;
 	})
