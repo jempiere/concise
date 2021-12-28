@@ -1,7 +1,7 @@
 /*SNIPPET LIBRARY*/
 import {fileURLToPath} from 'url'
-const __filename = fileURLToPath(import.meta.url);
-const __dirname  = __filename.substring(0,__filename.lastIndexOf('/')+1)
+const __filename = (function(){return fileURLToPath(import.meta.url)})();
+const __dirname  = (function(){return __filename.substring(0,__filename.lastIndexOf('/')+1)})()
 /*Array Methods*/
 
 const randex = (arr) => arr[~~(Math.random()*arr.length)];
@@ -383,4 +383,6 @@ export {
 	dom,
 	linkDevice,
 	fetchHTML,
+	__filename,
+	__dirname,
 }
