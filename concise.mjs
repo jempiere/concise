@@ -334,6 +334,7 @@ const dom = {
 	forms: ()=> window.document.forms,
 	getSelection: () => window.document.getSelection(),
 	activeElement: () => window.document.activeElement,
+	$: (el) => window.document[el],
 }
 
 const linkDevice = (player, video = true, audio = true) => {
