@@ -62,6 +62,69 @@ class Accumulator {
 	}
 }
 
+class Daisy extends Array {
+	constructor(len=10, fill=0){
+		super(); this.length = len; this.fill(fill);
+		this.marker = '❁';
+		this.ended = false;
+		this.end_data = [];
+		this.silent = false;
+	}
+	toString(){
+		return (this.ended) ? ''+this.end_data : super.toString()
+	}
+	chain(fn){
+		if(this.ended) if(this.silent) return this;
+		else this.panic();
+		let res = []; this.forEach((e,i) => res.push(fn(e,i)));
+		this.stall(...res);
+		return this;
+	}
+	log(msg=''){
+		if(this.ended) console.log(this.marker,msg,''+this.end_data)
+		else console.log(this.marker,msg,''+this);
+		return this;
+	}
+	end(fn,iv=0){
+		if(this.ended)
+			if(this.silent) return this.end_data;
+			else this.panic();
+		let c = iv; let l = 0; let i;
+		fn = typeof fn !== 'function' ? (a,b) => a+b : fn;
+		for(i = 0; i < this.length; i++){
+			l = fn(l,c,i,this);
+			c = this[i];
+		}
+		this.ended = true;
+		this.end_data = fn(l,c,i,this);
+		return this.end_data;
+	}
+	get raw(){
+		return this.map(n => n);
+	}
+	silence(){
+		this.silent = true;
+		return this;
+	}
+	unsilence(){
+		this.silent = false;
+		return this;
+	}
+	set_marker(char){
+		this.marker = char;
+		return this;
+	}
+	stall(...a){
+		this.length = 0;
+		this.push(...a);
+		return this;
+	}
+	nothing(){}
+	panic(){
+		throw new Error('Chain ended previously.');
+	}
+}
+
 class Struct extends Array {
 	constructor(...args){
 		super(...args);
@@ -174,6 +237,8 @@ const r2d = r => r*(180/Math.PI);
 
 const dist = (x0,y0,x1,y1) => sqrt(((x1-x0)**2)+((y1-y0)**2));
 
+const even = (n) => n%2 === 0;
+
 const range = function*(n1,n2){
 	if(n1 < 0) yield n1;
 	let i = 0;
@@ -210,9 +275,16 @@ const closeFactors = n => {
 
 const log = console.log;
 
-const debug = (str, i) => {
-	if(typeof str !== 'string' || typeof i !== 'number') throw new TypeError(`Type Mismatch in debug statement`);
-	log(`s: ${str}\n${' '.repeat(i+2)}^`);
+const type = (obj) => (obj.constructor.toString().split(' ')[1]).replaceAll(')','').replaceAll('(','').toLowerCase();
+
+const debug = (msg, i) => {
+	if(typeof msg == 'number')
+		log(`${'-'.repeat(msg)}`)
+	else if(typeof msg == 'string' && typeof i !== 'number')
+		log(`@:${msg}`)
+	else if(typeof msg == 'string')
+		log(`@:${msg}\n${'-'.repeat(i-2)}^`);
+	else throw new TypeError(`Recieved ${type(msg)}, was expecting number or string.`)
 };
 
 const once = (b, ctx) => {
@@ -384,4 +456,7 @@ export {
 	dom,
 	linkDevice,
 	fetchHTML,
+	type,
+	even,
+	Daisy,
 }
