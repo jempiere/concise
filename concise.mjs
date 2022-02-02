@@ -1,67 +1,24 @@
-/*SNIPPET LIBRARY*/
 import {fileURLToPath} from 'url'
 const __cdf = () => fileURLToPath(import.meta.url);
 const __cdn  = () => __cdf().substring(0,__cdf().lastIndexOf('/')+1);
-/*Array Methods*/
 
-const randex = (arr) => arr[~~(Math.random()*arr.length)];
-
-const shuffle = ([...arr]) => {
-	let m = arr.length;
-	while(m){
-		const i = Math.floor(Math.random()*m--);
-		[arr[m],arr[i]] = [arr[i],arr[m]];
-	}
-	return arr;
+/* Data Structures */
+class Acc{
+	constructor(def=''){this.raw=def}
+	push(...a){a.forEach(e => this.raw += e); return this}
+	clear(a=''){a = this.raw+a; this.raw=''; return t}
+	get length(){return this.raw.length}
 }
-
-/*Data Structures*/
-
-class Accumulator {
-	constructor(t,cb){
-		this.t = t;
-		this.c = '';
-		this.length = 0;
-		this.cb = (typeof cb != 'undefined' && typeof cb == 'function') ? cb : ()=>log('Eureka!');
-	}
-	test(s){
-		if(s.length > 1) throw new Error(`Rcieved ${s.length} chars, expected 1 char`);
-		if(this.c+s == this.t){
-			this.cb(); this.c+=s; this.#sl();
-			return true;
-		}
-		let m = '';
-		for(let i in this.t){
-			if(this.t[i] != this.c[i]) m = this.t[i];
-			if(m) break;
-		}
-		if(m == s){
-			this.c += s;
-			return true;
-		}
-		return false;
-	}
-	#sl(){this.length - this.c.length};
-	clear(i){
-		i = this.c;
-		this.c=  '';
-		return i;
-	}
-	[Symbol.iterator](){
-		let i = 0;
-		let Done = false;
-		return {
-			next: () => {
-				Done = (i++ >= this.c.length);
-				return {
-					done: Done,
-					value: this.c[i-1],
-				}
-			}
-		}
-	}
+class Flag{
+	constructor(bool=false){this.bool = bool}
+	raise(){this.bool = true}
+	lower(){this.bool = false}
+	toggle(){this.bool = !this.bool}
+	set(bool){this.bool = bool}
+	get(){return this.bool}
+	is(){return this.bool}
+	get raw(){return this.bool}
 }
-
 class Daisy extends Array {
 	constructor(len=10, fill=0){
 		super(); this.length = len; this.fill(fill);
@@ -85,11 +42,12 @@ class Daisy extends Array {
 		else console.log(this.marker,msg,''+this);
 		return this;
 	}
-	end(fn,iv=0){
+	end(iv=0,fn){
 		if(this.ended)
 			if(this.silent) return this.end_data;
 			else this.panic();
 		let c = iv; let l = 0; let i;
+		if(typeof iv == 'string') l = '';
 		fn = typeof fn !== 'function' ? (a,b) => a+b : fn;
 		for(i = 0; i < this.length; i++){
 			l = fn(l,c,i,this);
@@ -99,8 +57,48 @@ class Daisy extends Array {
 		this.end_data = fn(l,c,i,this);
 		return this.end_data;
 	}
+	add(...v){
+		this.push(...v);
+		return this;
+	}
+	iter(iterable,fn){ //unwraps arrays, so DOUBLE WRAP if you want to return an array!
+		fn = (typeof fn === 'function') ? fn : n=>n;
+		iterable.forEach((el,idx) => this.add(...check(fn(el,idx))));
+		return this;
+		function check(arg){
+			if(type(arg) == 'array') return arg
+			else return [arg]
+		}
+	}
+	collapse(iterable,fn2){
+		fn2 = (typeof fn2 === 'function') ? fn2 : n=>n;
+		let fn = (e,i) => this[i] = fn2(e);
+		iterable.forEach(fn);
+		return this;
+	}
+	unpop(chain=true){
+		let i = this.shift();
+		return (chain) ? this : i;
+	}
+	pop(chain=true){
+		let i = this.pop();
+		return (chain) ? this : i;
+	}
+	change(i,v){
+		this[i] = v;
+		return this;
+	}
 	get raw(){
-		return this.map(n => n);
+		let n = []; this.forEach(b => n.push(b));
+		return n;
+	}
+	get fin(){
+		if(this.ended) return this.end_data;
+		if(!this.ended) if(this.silent) return;
+		this.panic();
+	}
+	get length(){
+		return this.length
 	}
 	silence(){
 		this.silent = true;
@@ -123,8 +121,20 @@ class Daisy extends Array {
 	panic(){
 		throw new Error('Chain ended previously.');
 	}
+	[Symbol.iterator](){
+		let i = 0;
+		let Done = false;
+		return {
+			next: () => {
+				Done = (i++ >= this.length);
+				return {
+					done: Done,
+					value: this[i-1],
+				}
+			}
+		}
+	}
 }
-
 class Struct extends Array {
 	constructor(...args){
 		super(...args);
@@ -194,59 +204,62 @@ class Struct extends Array {
 
 }
 
-const verifyObject = (obj, ...props) => {
-	let res = true;
-	for(let prop of props){
-		if(!res) return res;
-		if(typeof obj[prop] == 'undefined') res = false;
-	}
-	return res;
-}
+/* String Methods */
+const capitalize = str => str.split('').map(n => (n[0].toUpperCase()+n.substring(1))).join('');
+const decapitalize = str => str.split('').map(n => (n[0].toLowerCase()+n.substring(1))).join('');
 
-/*STRINGS*/
-
-const capitalize   = str => str[0].toUpperCase + str.substring(1);
-
-const decapitalize = str => str[0].toLowerCase + str.substring(1);
-
-/*MATH*/
-
+/* Math Methods */
 const min = (...args) => args.reduce((a,b) => (a < b) ? a : b);
-
 const max = (...args) => args.reduce((a,b) => (a > b) ? a : b);
 
 const floor = (n) => ~~(n);
-
 const ceil  = (n) => ~~(n+1);
-
 const round = (n, p = 0) => (~~((n*10**p)+0.5)/10**p);
 
 const abs = (n) => (n < 0) ? 0-n : n;
-
-const random = Math.random;
-
-const randint = (min=0, max=1) => floor(random() * (max-min+1)) + min;
-
 const mean = (...nums) => (nums.reduce((a,v) => a+v, 0))/nums.length;
+const avg = mean;
 
 const sqrt = (n) => n**(0.5);
-
-const d2r = d => d*(Math.PI/180.0);
-
-const r2d = r => r*(180/Math.PI);
+const root = (n,r) => n**(1/r);
 
 const dist = (x0,y0,x1,y1) => sqrt(((x1-x0)**2)+((y1-y0)**2));
 
-const even = (n) => n%2 === 0;
+/* Math Conversions */
+const d2r = d => d*(Math.PI/180.0);
+const r2d = r => r*(180/Math.PI);
 
-const range = function*(n1,n2){
+const c2f = (cel) => cel * 9/5 + 32;
+const f2c = (fah) => (fah - 32) * 5/9;
+
+const even = (n) => n%2 === 0;
+const unsign = n => abs(n);
+
+
+/* Random stuff */
+const random = Math.random;
+const randint = (min=0, max=1) => floor(random() * (max-min+1)) + min;
+const randex = (arr) => arr[~~(random()*arr.length)];
+
+/* Array Methods */
+const shuffle = ([...arr]) => {
+		let m = arr.length;
+		while( m ){
+			const i = floor(random()*m--);
+			[ arr[m],arr[i] ] = [ arr[i],arr[m] ]
+		}
+		return arr
+}
+const flatten = ([...arr]) => arr.flat(Infinity)
+
+/* Number Checking */
+const range = function*(n1,n2,s=1){
 	if(n1 < 0) yield n1;
 	let i = 0;
-	if(n2) for(i = n1; i < n2+1; i++) yield i;
-	else   for(i =  0; i < n1  ; i++) yield i;
+	if(n2) for(i = n1; i < (round(n2+s,`${s}`.split('.')[1].length+2)); i=round(i+s,`${s}`.split('.')[1].length+2)) yield i;
+	else   for(i =  0; i < n1  ; i=round(i+s,`${s}`.split('.')[1].length+2)) yield i;
 	return i;
-};
-
+}
 const isPrime = n => {
 	let a = new Array(n+1).fill(true);
 	a[0] = a[1] = false;
@@ -256,7 +269,6 @@ const isPrime = n => {
 	let res = a.reduce((acc,val,ind) => ((val) ? acc.concat(ind) : acc),[]);
 	return (res.pop() == n);
 }
-
 const closeFactors = n => {
 	let a = 0;
 	if(isPrime(n)){
@@ -265,18 +277,10 @@ const closeFactors = n => {
 	let test = floor(sqrt(n));
 	while(n % test != 0) test--;
 	return [test, n/test, a];
-};
+}
 
-
-
-
-
-/*Utilities*/
-
-const log = console.log;
-
-const type = (obj) => (obj.constructor.toString().split(' ')[1]).replaceAll(')','').replaceAll('(','').toLowerCase();
-
+/* Debugging  */
+const log = console.log()
 const debug = (msg, i) => {
 	if(typeof msg == 'number')
 		log(`${'-'.repeat(msg)}`)
@@ -285,8 +289,32 @@ const debug = (msg, i) => {
 	else if(typeof msg == 'string')
 		log(`@:${msg}\n${'-'.repeat(i-2)}^`);
 	else throw new TypeError(`Recieved ${type(msg)}, was expecting number or string.`)
-};
+}
+const type = (obj) => (obj.constructor.toString().split(' ')[1]).replaceAll(')','').replaceAll('(','').toLowerCase();
 
+const assertEq = (a,b,msg) => {
+	if(a == b) return true;
+	throw new Error(msg);
+}
+const assert = (a,msg) => assertEq(a,true,msg)
+
+
+const formatNumber = (n,d,l="en-US") => parseFloat(n.toFixed(d)).toLocaleString(l);
+
+/* Object Structures */
+const verifyObject = (obj, ...props) => {
+	let res = true;
+	for(let prop of props){
+		if(!res) return res;
+		if(typeof obj[prop] == 'undefined') res = false;
+	}
+	return res;
+}
+const Enum = (...a) => {
+	let res = {};
+	a.forEach(e => res[''+e] = Symbol.for(''+e));
+	return Object.freeze(res);
+}
 const once = (b, ctx) => {
 	let r;
 	return function(){
@@ -297,8 +325,23 @@ const once = (b, ctx) => {
 		return r;
 	}
 }
-const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 
+/* Casting */
+const BYTES = (...str) => new Daisy(0,0).iter(str.join('').split(''), c=> c.charCodeAt(0)).raw;
+const INT = (n,radix=10) => floor(parseFloat(''+n,radix));
+const FLOAT = (n,radix=10) => parseFloat(''+n,radix);
+const STRING = n => ''+n;
+const ARRAY = arg => {
+	if(Array.isArray(arg)) return arg
+	if(STRING(arg) === arg) return arg.split('')
+	if(FLOAT(arg) === arg) return [arg]
+	if(INT(arg) === arg) return new Array(arg)
+	if(typeof arg === 'object') return Array.from(arg)
+	else return []
+}
+
+/* Utilities */
+const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 const req = async (fn, props=[], scope=global) => {
 	Object.entries(await import(__cdn()+fn)).forEach(([name, exp]) => { //uses this file as it's root1
 		if(props.length == 0) scope[name] = exp;
@@ -306,42 +349,6 @@ const req = async (fn, props=[], scope=global) => {
 	})
 }
 
-const hex2hsv = hex => {
-	hex = (hex[0] == '#') ? hex.substr(1) : hex;
-	let comps = [], acc = '';
-	for(let char of hex)
-		if(acc.length + 1 == 2){
-			comps.push('0x'+acc+char); acc=''
-		} else acc+=char;
-
-	if(acc) comps.push('0x'+acc);
-	comps = comps.map(n => n/255);
-
-	let h,s,v;
-	let maxc  = max(...comps);
-	let micn  = min(...comps);
-	let delta = maxc - minc;
-
-	v = maxc;
-
-	if(maxc == minc) return [0,0,v];
-
-	s = delta/maxc;
-
-	let red_comp = (maxc - comps[0]) / delta;
-	let gre_comp = (maxc - comps[1]) / delta;
-	let blu_comp = (maxc = comps[2]) / delta;
-
-	h = (comps[0] == maxc)
-	 ? 0+blu_comp-gre_comp
-	  : (comps[1] == maxc)
-	 ? 2+red_comp-blu_comp
-	  : 4+gre_comp-red_comp;
-
-	h %= 6;
-	return [h*60,s*100,v*100];
-
-};
 
 class Timer {
 	constructor(interval, wf, ef){
@@ -384,12 +391,44 @@ class Timer {
 
 }
 
+/* DOM utilities */
 
+const hex2hsv = hex => {
+	hex = (hex[0] == '#') ? hex.substr(1) : hex;
+	let comps = [], acc = '';
+	for(let char of hex)
+		if(acc.length + 1 == 2){
+			comps.push('0x'+acc+char); acc=''
+		} else acc+=char;
 
+	if(acc) comps.push('0x'+acc);
+	comps = comps.map(n => n/255);
 
+	let h,s,v;
+	let maxc  = max(...comps);
+	let micn  = min(...comps);
+	let delta = maxc - minc;
 
-/*DOM*/
+	v = maxc;
 
+	if(maxc == minc) return [0,0,v];
+
+	s = delta/maxc;
+
+	let red_comp = (maxc - comps[0]) / delta;
+	let gre_comp = (maxc - comps[1]) / delta;
+	let blu_comp = (maxc = comps[2]) / delta;
+
+	h = (comps[0] == maxc)
+	 ? 0+blu_comp-gre_comp
+	  : (comps[1] == maxc)
+	 ? 2+red_comp-blu_comp
+	  : 4+gre_comp-red_comp;
+
+	h %= 6;
+	return [h*60,s*100,v*100];
+
+}
 const dom = {
 	idGet: (id) => window.document.getElementById(id),
 	tagGets: (tag) => window.document.getElementsByTagName(tag),
@@ -406,57 +445,32 @@ const dom = {
 	forms: ()=> window.document.forms,
 	getSelection: () => window.document.getSelection(),
 	activeElement: () => window.document.activeElement,
-	$: (el) => window.document[el],
 }
-
+const dom$ = (el) => window.document[el];
 const linkDevice = (player, video = true, audio = true) => {
 	MediaDevices.getUserMedia({video,audio}).then(stream => {
 		player.src = stream;
 	}).catch(e => console.err(e));
 }
-
 const fetchHTML = async path => {
 	let response = await fetch(path);
 	let htmlstr = await response.text();
 	return htmlstr;
 }
 
-
 export {
-	randex,
-	shuffle,
-	Accumulator,
-	Struct,
-	verifyObject,
-	capitalize,
-	decapitalize,
-	min,
-	max,
-	floor,
-	ceil,
-	round,
-	abs,
-	random,
-	randint,
-	mean,
-	sqrt,
-	d2r,
-	r2d,
-	dist,
-	range,
-	isPrime,
-	closeFactors,
-	log,
-	debug,
-	once,
-	sleep,
-	req,
-	hex2hsv,
-	Timer,
-	dom,
-	linkDevice,
-	fetchHTML,
-	type,
-	even,
-	Daisy,
+	Acc,Flag,Daisy,Struct,
+	capitalize,decapitalize,
+	min,max,floor,ceil,round,
+	abs,mean,avg,sqrt,root,dist,
+	d2r,r2d,c2f,f2c,even,unsign,
+	random,randint,
+	randex,shuffle,flatten,
+	range,isPrime,closeFactors,
+	log,debug,type,
+	assertEq,assert,
+	formatNumber, verifyObject, Enum, once,
+	BYTES,INT,FLOAT,STRING,ARRAY,
+	sleep,req,Timer,
+	hex2hsv,dom,dom$,linkDevice,fetchHTML
 }
