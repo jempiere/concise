@@ -1,4 +1,4 @@
-# concise
+# Concise.mjs
 An all-purpose Snippets Library!
 ---
 Welcome to `concise.mjs`, an es6 module that has just about every snippet I've ever needed (and is updated regularly!). 
